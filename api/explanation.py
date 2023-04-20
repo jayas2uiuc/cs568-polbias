@@ -8,12 +8,9 @@ def get_explainability_prompt(data):
 def postprocess_explaination(explain):
     out = explain.split("\n")
     result = []
-    output = ""
     for i in range(1, len(out)):
-        if i > 3:
-            break
-        output += "\u2022 " + out[i].lstrip("-").lstrip().strip("\"") + "\n"
-    return output
+        result.append(out[i].lstrip("-").lstrip().strip("\""))
+    return result
 
 
 # def explaination(data):
