@@ -1,6 +1,6 @@
 def get_explainability_prompt(data):
     return (
-        "Please identify certain phrases in an article that may indicate "
+        "Please identify certain phrases or language in an article that may indicate "
         f"{data['bias']}-wing political bias from an article with this "
         f"link: {data['url']}. Just list bullet points, nothing else."
     )
