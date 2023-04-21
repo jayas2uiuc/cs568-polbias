@@ -69,7 +69,7 @@ def get_model_components():
             text = get_text(url)
 
             #grabs related news article objects
-            related_news = get_related_news(url)
+            related_news, article_title = get_related_news(url)
 
             #pass text to detection api to get bias
             bias, confidence = get_bias(text)
@@ -79,6 +79,7 @@ def get_model_components():
 
             response = jsonify({
                 "url": url,
+                "title": article_title,
                 "bias": bias,
                 "confidence": confidence,
                 "explanation": ["","",""],
@@ -104,7 +105,7 @@ def get_related_news(url):
     for articleIdx in range(len(json_news)):
         if json_news[articleIdx]['url'] == article.title:
             del json_news[articleIdx]
-    return json_news
+    return json_news, article.title
 
 
 def get_bias(text): 
