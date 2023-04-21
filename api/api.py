@@ -19,7 +19,7 @@ from detection import (
 from explanation import get_explainability_prompt, postprocess_explaination
 from debias import get_debiasing_prompt, postprocess_debiased_text
 
-from chatgpt_wrapper import OpenAIAPI
+from revChatGPT.V1 import Chatbot
 
 app = Flask(__name__)
 CORS(app)
@@ -37,6 +37,8 @@ def setup_model(model_name, **kwargs):
         )
     
     elif model_name == "chatgpt":
+        # Obtain the key from:
+        # https://chat.openai.com/api/auth/session
         api_key_file = kwargs.get("api_key_file", "api/secret.key")
         with open(api_key_file, "r") as f:
             api_key = f.readline().strip()
@@ -44,10 +46,11 @@ def setup_model(model_name, **kwargs):
             if not len(api_key):
                 return None
 
-            os.environ["OPENAI_API_KEY"] = api_key
+        chatbot = Chatbot(config={
+            "access_token": api_key
+        })
 
-        bot = OpenAIAPI()
-        model = bot
+        model = chatbot
 
     return model
 
@@ -132,10 +135,11 @@ def explain_bias(bias, url):
         "bias": bias
     }
     explainability_prompt = get_explainability_prompt(data)
-    success, explanation, message = models['chatgpt'].ask(explainability_prompt)
-    if not success:
-        return message
-    
+
+    explanation = ""
+    for data in models['chatgpt'].ask(explainability_prompt):
+        explanation += data["message"]
+        
     # TODO(): postprocess explanation
     explanation = postprocess_explaination(explanation)
     return explanation
@@ -151,9 +155,10 @@ def debias_endpoint():
 
             # TODO(): get prompt for debiasing
             debiasing_prompt = get_debiasing_prompt(data)
-            success, debiased, message = models['chatgpt'].ask(debiasing_prompt)
-            if not success:
-                return message
+            
+            debiased = ""
+            for data in models['chatgpt'].ask(debiasing_prompt):
+                debiased += data["message"]
             
             # TODO(): postprocess debiased text
             debiased = postprocess_debiased_text(debiased)
