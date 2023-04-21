@@ -59,6 +59,18 @@ models = {
     'chatgpt': setup_model('chatgpt'),
 }
 
+def query_chatgpt(message):
+    output = ""
+    prev_text = ""
+
+    for data in models['chatgpt'].ask(message):
+        message = data["message"][len(prev_text) :]
+        output += message
+        prev_text = data["message"]
+
+    return output
+
+
 @app.route('/model-components', methods=['GET', 'POST'])
 def get_model_components():
     """ Gets the bias and model explanation """
@@ -135,10 +147,7 @@ def explain_bias(bias, url):
         "bias": bias
     }
     explainability_prompt = get_explainability_prompt(data)
-
-    explanation = ""
-    for data in models['chatgpt'].ask(explainability_prompt):
-        explanation += data["message"]
+    explanation = query_chatgpt(explainability_prompt)
         
     # TODO(): postprocess explanation
     explanation = postprocess_explaination(explanation)
@@ -155,10 +164,7 @@ def debias_endpoint():
 
             # TODO(): get prompt for debiasing
             debiasing_prompt = get_debiasing_prompt(data)
-            
-            debiased = ""
-            for data in models['chatgpt'].ask(debiasing_prompt):
-                debiased += data["message"]
+            debiased = query_chatgpt(debiasing_prompt)
             
             # TODO(): postprocess debiased text
             debiased = postprocess_debiased_text(debiased)
