@@ -90,14 +90,14 @@ def get_model_components():
             bias, confidence = get_bias(text)
 
             #ask gpt to explain the bias
-            #explanation = explain_bias(bias, url)
+            explanation = explain_bias(bias, url)
 
             response = jsonify({
                 "url": url,
                 "title": article_title,
                 "bias": bias,
                 "confidence": confidence,
-                "explanation": ["","",""],
+                "explanation": explanation,
                 "related_articles": related_news
             })
 
@@ -114,7 +114,7 @@ def get_text(url):
     return article.text
 
 def get_related_news(url):
-    google_news = GNews(language='en', max_results=3)
+    google_news = GNews(language='en', max_results=10)
     article = google_news.get_full_article(url)
     json_news = google_news.get_news(article.title)
     for articleIdx in range(len(json_news)):
