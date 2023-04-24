@@ -90,14 +90,14 @@ def get_model_components():
             bias, confidence = get_bias(text)
 
             #ask gpt to explain the bias
-            explanation = explain_bias(bias, url)
+#             explanation = explain_bias(bias, url)
 
             response = jsonify({
                 "url": url,
                 "title": article_title,
                 "bias": bias,
                 "confidence": confidence,
-                "explanation": explanation,
+#                 "explanation": explanation,
                 "related_articles": related_news
             })
 
@@ -106,6 +106,30 @@ def get_model_components():
 
         return "Invalid input"
 
+
+@app.route('/explain', methods=['GET', 'POST'])
+def explain():
+    """ Gets the bias and model explanation """
+    if request.method == "POST":
+        data = request.data
+        if data:
+            data = json.loads(data.decode("utf-8"))
+            url = data['url']
+            bias = data['bias']
+
+            #ask gpt to explain the bias
+            explanation = explain_bias(bias, url)
+
+            response = jsonify({
+                "url": url,
+                "bias": bias,
+                "explanation": explanation
+            })
+
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+
+        return "Invalid input"
 
 def get_text(url):
     article = newspaper.Article(url)

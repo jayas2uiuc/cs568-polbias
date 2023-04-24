@@ -15,15 +15,28 @@ function AppContainer(){
         const [newsUrl, setNewsUrl] = React.useState('');
         const [domain, setDomain] = React.useState('');
         const [biasInfo, setBiasInfo] = React.useState('');
+        const [explanations, setExplanations] = React.useState('');
+        const [exApi, setExApi] = React.useState(false);
 
 
         async function makeApiCall(newsUrl) {
-//            newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
+            newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
             console.log("One more api call", JSON.stringify({json: {url: newsUrl}}))
             const response = await fetch('http://127.0.0.1:5000/model-components', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', "Access-Control-Allow-Origin": "*",},
                 body: JSON.stringify({json: {url: newsUrl}})
+              })
+            return await response.json();
+        }
+
+        async function makeExplainApiCall(newsUrl, newsBias) {
+            newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
+            console.log("One more api call", JSON.stringify({url: newsUrl, bias: newsBias}))
+            const response = await fetch('http://127.0.0.1:5000/explain', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', "Access-Control-Allow-Origin": "*",},
+                body: JSON.stringify({url: newsUrl, bias: newsBias})
               })
             return await response.json();
         }
@@ -41,6 +54,8 @@ function AppContainer(){
 
             if(biasInfo == ''){
                 makeApiCall(newsUrl).then(response => setBiasInfo(response));
+            }else if(explanations == ''){
+                makeExplainApiCall(newsUrl, biasInfo.bias).then(response => setExplanations(response.explanation.filter(expl => expl)))
             }
         });
 
@@ -60,7 +75,7 @@ function AppContainer(){
                           <TabPanels>
                             <Item key="t1">
                               <Prediction title={biasInfo.title} bias={biasInfo.bias} confidence={biasInfo.confidence} domain={domain} />
-                              <Explain explanations={biasInfo.explanation} />
+                              <Explain explanations={explanations} />
                             </Item>
 
                             <Item key="t2">
