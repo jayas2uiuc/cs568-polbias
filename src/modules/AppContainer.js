@@ -31,6 +31,7 @@ function AppContainer(){
         }
 
         async function makeExplainApiCall(newsUrl, newsBias) {
+            setExApi(true)
             newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
             console.log("One more api call", JSON.stringify({url: newsUrl, bias: newsBias}))
             const response = await fetch('http://127.0.0.1:5000/explain', {
@@ -54,8 +55,8 @@ function AppContainer(){
 
             if(biasInfo == ''){
                 makeApiCall(newsUrl).then(response => setBiasInfo(response));
-            }else if(explanations == ''){
-                makeExplainApiCall(newsUrl, biasInfo.bias).then(response => setExplanations(response.explanation.filter(expl => expl)))
+            }else if(explanations == '' && !exApi){
+                makeExplainApiCall(newsUrl, biasInfo.bias).then(response => setExplanations(response.explanation.filter(expl => (expl && expl.trim().slice(-1) != ':') )))
             }
         });
 
@@ -83,7 +84,7 @@ function AppContainer(){
                             </Item>
 
                             <Item key="t3">
-                              <Debiaser highlightedText={highlightedText}/>
+                              <Debiaser highlightedText={highlightedText} bias={biasInfo.bias}/>
                             </Item>
                           </TabPanels>
                         </Tabs>
