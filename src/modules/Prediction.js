@@ -6,7 +6,8 @@ import ThumbDownOutline from '@spectrum-icons/workflow/ThumbDownOutline';
 
 
 function Prediction(props){
-        var prediction = props.prediction;
+        var bias = props.bias;
+        var conf = props.confidence
 		return(
                 <div >
 
@@ -31,11 +32,11 @@ function Prediction(props){
 
                             <LabeledValue label="Bias Detection" value={''} />:
                             &ensp;
-                            <Badge variant={prediction.bias == 'RIGHT' ? 'negative':'info'}>{prediction.bias}-WING</Badge>
+                            <Badge variant={bias == 'RIGHT-WING' ? 'negative':'info'}>{bias}</Badge>
                         </Well>
                             <br/> <br/>
                         <Well>
-                            <Meter label="Confidence" variant="positive" value={prediction.value*100} />
+                            <Meter label="Confidence" variant="positive" value={conf*100} />
                         </Well>
 
 

@@ -5,6 +5,8 @@ import Explain from './Explain';
 import RelatedNews from './RelatedNews';
 import Debiaser from './Debiaser';
 import {Item, TabList, TabPanels, Tabs} from '@adobe/react-spectrum'
+import {ProgressCircle} from '@adobe/react-spectrum'
+
 
 
 function AppContainer(){
@@ -12,6 +14,19 @@ function AppContainer(){
         const [highlightedText, setHighlightedText] = React.useState('');
         const [newsUrl, setNewsUrl] = React.useState('');
         const [domain, setDomain] = React.useState('');
+        const [biasInfo, setBiasInfo] = React.useState('');
+
+
+        async function makeApiCall(newsUrl) {
+//            newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
+            console.log("One more api call", JSON.stringify({json: {url: newsUrl}}))
+            const response = await fetch('http://127.0.0.1:5000/model-components', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', "Access-Control-Allow-Origin": "*",},
+                body: JSON.stringify({json: {url: newsUrl}})
+              })
+            return await response.json();
+        }
 
         useEffect( () => {
             chrome.tabs && chrome.tabs.query(
@@ -23,9 +38,15 @@ function AppContainer(){
                         chrome.tabs.executeScript({code: "window.getSelection().toString();"},
                                                     function(selection) {setHighlightedText(selection[0])})
                       })
+
+            if(biasInfo == ''){
+                makeApiCall(newsUrl).then(response => setBiasInfo(response));
+            }
         });
 
-        const biasInfo = makeApiCall(newsUrl);
+        if(biasInfo == ''){
+            return <ProgressCircle isIndeterminate />
+        }else{
 
 		return(
                 <div id="appContainer">
@@ -38,12 +59,12 @@ function AppContainer(){
 
                           <TabPanels>
                             <Item key="t1">
-                              <Prediction title={biasInfo.title} prediction={biasInfo.prediction} domain={domain} />
-                              <Explain explanations={biasInfo.explanations} />
+                              <Prediction title={biasInfo.title} bias={biasInfo.bias} confidence={biasInfo.confidence} domain={domain} />
+                              <Explain explanations={biasInfo.explanation} />
                             </Item>
 
                             <Item key="t2">
-                              <RelatedNews relatedNews={biasInfo.relatedNews} />
+                              <RelatedNews relatedNews={biasInfo.related_articles} />
                             </Item>
 
                             <Item key="t3">
@@ -53,6 +74,7 @@ function AppContainer(){
                         </Tabs>
                 </div>
                 )
+        }
 }
 
 function makeApiCall(url){
@@ -63,5 +85,7 @@ function makeApiCall(url){
                             {"source": "fox.com", "title":"Related news title 2", url:"www.google.com"},
                             {"source": "nyt.com", "title":"Related news title 3", url:"www.google.com"}]}
 }
+
+
 
 export default AppContainer;
