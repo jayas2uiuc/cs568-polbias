@@ -6,14 +6,16 @@ import {ProgressCircle} from '@adobe/react-spectrum';
 
 function Debiaser(props){
 
-        var highlightedText = props.highlightedText;
+//        var highlightedText = props.highlightedText;
+        var highlightedText = "The only crime that has been discussed in this case is an unprecedented attempt to revive a misdemeanor for falsifying business documents that expired years ago. If that is still the basis of Thursday’s indictment, Bragg could not have raised a weaker basis to prosecute a former president. If reports are accurate, he may attempt to \"bootstrap\" the misdemeanor into a felony (and longer statute of limitations) by alleging an effort to evade federal election charges."
+
         var bias = props.bias;
         const [debiasedText, setDebiasedText] = React.useState('');
 
         function debias(){
-            if(highlightedText)
+            if(debiasedText)
                 return
-            makeDebiasApiCall(highlightedText).then(response => setDebiasedText(response.debiased));
+            makeDebiasApiCall(highlightedText, bias).then(response => setDebiasedText(response.debiased));
         }
 
         async function makeDebiasApiCall(highlightedText, newsBias) {
@@ -22,13 +24,15 @@ function Debiaser(props){
             const response = await fetch('http://127.0.0.1:5000/debias', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', "Access-Control-Allow-Origin": "*",},
-                body: JSON.stringify({url: highlightedText, bias: newsBias})
+                body: JSON.stringify({text: highlightedText, bias: newsBias})
               })
             return await response.json();
         }
 
 		return(
                 <div >
+
+                    <br/>
 
                      <ContextualHelp variant="info">
                       <Heading>Neutral Text Generation</Heading>
@@ -46,9 +50,13 @@ function Debiaser(props){
                         <LabeledValue label="Highlighted Text" value={highlightedText} />
                       </Well>
 
+                      <br/>
+
                       <Button variant="primary" onClick={debias}>
                          <Text>Debias</Text>
                        </Button>
+
+                       <br/>
 
                        <Well>
                             <Debiased debiasedText={debiasedText} />
