@@ -26,12 +26,14 @@ function RelatedNews(props){
                     <TableView
                       maxWidth="size-6000"
                       selectionMode="multiple"
-                      overflowMode="wrap">
+                      overflowMode="wrap"
+                      onAction={(key) => window.open(props.relatedNews[key].url)}>
                       <TableHeader columns={columns}>
                         {column => (
                           <Column
                             key={column.uid}
-                            align={column.uid === 'date' ? 'end' : 'start'}>
+                            align={column.uid === 'date' ? 'end' : 'start'}
+                            allowsResizing >
                             {column.name}
                           </Column>
                         )}
