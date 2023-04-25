@@ -6,8 +6,8 @@ import {ProgressCircle} from '@adobe/react-spectrum';
 
 function Debiaser(props){
 
-//        var highlightedText = props.highlightedText;
-        var highlightedText = "The only crime that has been discussed in this case is an unprecedented attempt to revive a misdemeanor for falsifying business documents that expired years ago. If that is still the basis of Thursday’s indictment, Bragg could not have raised a weaker basis to prosecute a former president. If reports are accurate, he may attempt to \"bootstrap\" the misdemeanor into a felony (and longer statute of limitations) by alleging an effort to evade federal election charges."
+        var highlightedText = props.highlightedText;
+//        var highlightedText = "The only crime that has been discussed in this case is an unprecedented attempt to revive a misdemeanor for falsifying business documents that expired years ago. If that is still the basis of Thursday’s indictment, Bragg could not have raised a weaker basis to prosecute a former president. If reports are accurate, he may attempt to \"bootstrap\" the misdemeanor into a felony (and longer statute of limitations) by alleging an effort to evade federal election charges."
 
         var bias = props.bias;
         const [debiasedText, setDebiasedText] = React.useState('');
