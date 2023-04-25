@@ -24,6 +24,10 @@ from revChatGPT.V1 import Chatbot
 app = Flask(__name__)
 CORS(app)
 
+model_output_responses = {}
+explanation_output_responses = {}
+debiased_responses = {}
+
 def setup_model(model_name, **kwargs):
     model = None
     if model_name == "detection":
@@ -39,7 +43,7 @@ def setup_model(model_name, **kwargs):
     elif model_name == "chatgpt":
         # Obtain the key from:
         # https://chat.openai.com/api/auth/session
-        api_key_file = kwargs.get("api_key_file", "api/secret.key")
+        api_key_file = kwargs.get("api_key_file", "secret.key")
         with open(api_key_file, "r") as f:
             api_key = f.readline().strip()
 
@@ -80,6 +84,11 @@ def get_model_components():
             data = json.loads(data.decode("utf-8"))
             url = data['json']['url']
 
+            if url in model_output_responses:
+                return model_output_responses[url]
+
+            print("cache-miss")
+
             #grab text from url
             text = get_text(url)
 
@@ -101,6 +110,8 @@ def get_model_components():
                 "related_articles": related_news
             })
 
+            model_output_responses[url] = response
+
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
 
@@ -115,6 +126,11 @@ def explain():
         if data:
             data = json.loads(data.decode("utf-8"))
             url = data['url']
+
+            if url in explanation_output_responses:
+                print("cache hit")
+                return explanation_output_responses[url]
+
             bias = data['bias']
 
             #ask gpt to explain the bias
@@ -125,6 +141,8 @@ def explain():
                 "bias": bias,
                 "explanation": explanation
             })
+
+            explanation_output_responses[url] = response
 
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
@@ -186,6 +204,11 @@ def debias_endpoint():
         if data:
             data = json.loads(data.decode("utf-8"))
 
+            if data['text'] in debiased_responses:
+                print("cache-hit")
+                print(debiased_responses[data['text']])
+                return debiased_responses[data['text']]
+
             # TODO(): get prompt for debiasing
             debiasing_prompt = get_debiasing_prompt(data)
             debiased = query_chatgpt(debiasing_prompt)
@@ -197,6 +220,8 @@ def debias_endpoint():
                 'text': data['text'],
                 'debiased': debiased
             })
+
+            debiased_responses[data['text']] = response
 
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
