@@ -43,7 +43,7 @@ def setup_model(model_name, **kwargs):
     elif model_name == "chatgpt":
         # Obtain the key from:
         # https://chat.openai.com/api/auth/session
-        api_key_file = kwargs.get("api_key_file", "secret.key")
+        api_key_file = kwargs.get("api_key_file", "api/secret.key")
         with open(api_key_file, "r") as f:
             api_key = f.readline().strip()
 
@@ -87,8 +87,6 @@ def get_model_components():
             if url in model_output_responses:
                 return model_output_responses[url]
 
-            print("cache-miss")
-
             #grab text from url
             text = get_text(url)
 
@@ -128,7 +126,6 @@ def explain():
             url = data['url']
 
             if url in explanation_output_responses:
-                print("cache hit")
                 return explanation_output_responses[url]
 
             bias = data['bias']
@@ -205,8 +202,6 @@ def debias_endpoint():
             data = json.loads(data.decode("utf-8"))
 
             if data['text'] in debiased_responses:
-                print("cache-hit")
-                print(debiased_responses[data['text']])
                 return debiased_responses[data['text']]
 
             # TODO(): get prompt for debiasing
