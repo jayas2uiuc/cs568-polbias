@@ -9,7 +9,9 @@ def postprocess_explaination(explain):
     out = explain.split("\n")
     result = []
     for i in range(1, len(out)):
-        result.append(out[i].lstrip("-").lstrip().strip("\""))
+        sent =  out[i]
+        if len(sent) > 0 and sent[0] == "\"":
+            result.append(out[i].lstrip("-").lstrip().strip("\""))
     return result
 # phrases = [
 #     "Top Democrat",
