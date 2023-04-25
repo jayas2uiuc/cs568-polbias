@@ -8,11 +8,13 @@ def get_explainability_prompt(data):
 def postprocess_explaination(explain):
     out = explain.split("\n")
     result = []
-    for i in range(1, len(out)):
-        sent =  out[i]
-        if len(sent) > 0 and sent[0] == "\"":
-            result.append(out[i].lstrip("-").lstrip().strip("\""))
-    return result
+    # for i in range(1, len(out)):
+    #     result.append(out[i].lstrip("-").lstrip().strip("\""))
+    for i in range(len(out)):
+        sent = out[i].lstrip()
+        if len(sent) > 0:
+            result.append(sent.lstrip("-").lstrip())
+    return result[1:len(result)-1]
 # phrases = [
 #     "Top Democrat",
 #     "Democrat's request",
