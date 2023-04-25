@@ -42,7 +42,7 @@ function ExplainTable(props){
               maxHeight="400px"
               overflowMode="wrap">
 
-              {(item) => <Item>{item.text}</Item>}
+              {(item) => <Item>{'\"' + item.text}</Item>}
             </ListView>
             <br/>
             <Button variant="negative" style="outline" >Mark as incorrect</Button>
