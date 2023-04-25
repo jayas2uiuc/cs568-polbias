@@ -20,7 +20,7 @@ function AppContainer(){
 
 
         async function makeApiCall(newsUrl) {
-            newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
+//            newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
             console.log("One more api call", JSON.stringify({json: {url: newsUrl}}))
             const response = await fetch('http://127.0.0.1:5000/model-components', {
                 method: 'POST',
@@ -32,7 +32,7 @@ function AppContainer(){
 
         async function makeExplainApiCall(newsUrl, newsBias) {
             setExApi(true)
-            newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
+//            newsUrl = "https://www.foxnews.com/opinion/indictment-donald-trump-manhattan-da-bragg-america-legal-puzzle"
             console.log("One more api call", JSON.stringify({url: newsUrl, bias: newsBias}))
             const response = await fetch('http://127.0.0.1:5000/explain', {
                 method: 'POST',
