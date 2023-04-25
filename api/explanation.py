@@ -14,6 +14,8 @@ def postprocess_explaination(explain):
         sent = out[i].lstrip()
         if len(sent) > 0:
             result.append(sent.lstrip("-").lstrip())
+    if len(result) < 2:
+        return result
     return result[1:len(result)-1]
 # phrases = [
 #     "Top Democrat",
