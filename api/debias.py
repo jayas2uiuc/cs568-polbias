@@ -1,7 +1,7 @@
 def get_debiasing_prompt(data):
     return (
         f"Please remove any {data['bias']}-wing political bias from this piece"
-        f"of text: {data['text']}"
+        f"of text: {data['text']}. Just give the debiased text, noting else"
     )
 
 def postprocess_debiased_text(debiased):
