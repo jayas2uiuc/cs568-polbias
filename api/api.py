@@ -1,7 +1,8 @@
 import os
 import json
 import newspaper
-from gnews import GNews 
+from gnews import GNews
+from pathlib import Path
 
 from flask_cors import CORS
 from flask import (
@@ -84,8 +85,14 @@ def get_model_components():
             data = json.loads(data.decode("utf-8"))
             url = data['json']['url']
 
-            if url in model_output_responses:
-                return model_output_responses[url]
+            url_hash = f"model-{url.replace('/', '')}"
+
+#             if url in explanation_output_responses:
+#                 return explanation_output_responses[url]
+
+            cached_response = checkCache(url_hash)
+            if cached_response is not None:
+                return jsonify(cached_response)
 
             #grab text from url
             text = get_text(url)
@@ -99,22 +106,38 @@ def get_model_components():
             #ask gpt to explain the bias
 #             explanation = explain_bias(bias, url)
 
-            response = jsonify({
-                "url": url,
-                "title": article_title,
-                "bias": bias,
-                "confidence": confidence,
-#                 "explanation": explanation,
-                "related_articles": related_news
-            })
+            resp_dict = {
+                            "url": url,
+                            "title": article_title,
+                            "bias": bias,
+                            "confidence": confidence,
+            #                 "explanation": explanation,
+                            "related_articles": related_news
+                        }
 
-            model_output_responses[url] = response
+            response = jsonify(resp_dict)
+
+            cacheResponse(url_hash, resp_dict)
+#             model_output_responses[url] = response
 
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
 
         return "Invalid input"
 
+def checkCache(hash_url):
+    json_path = f"tmp/{hash_url}.json"
+    cached_response = Path(json_path)
+    if cached_response.is_file():
+        resp = open(json_path)
+        data = json.load(resp)
+        return data
+    return None
+
+def cacheResponse(url_hash, response):
+    json_path = f"tmp/{url_hash}.json"
+    with open(json_path, 'w') as fp:
+        json.dump(response, fp)
 
 @app.route('/explain', methods=['GET', 'POST'])
 def explain():
@@ -125,22 +148,30 @@ def explain():
             data = json.loads(data.decode("utf-8"))
             url = data['url']
 
-            if url in explanation_output_responses:
-                return explanation_output_responses[url]
+            url_hash = f"expl-{url.replace('/', '')}"
+#             url_hash = str(abs(hash(url)) % (10 ** 8))
+
+#             if url in explanation_output_responses:
+#                 return explanation_output_responses[url]
+
+            cached_response = checkCache(url_hash)
+            if cached_response is not None:
+                return jsonify(cached_response)
 
             bias = data['bias']
 
             #ask gpt to explain the bias
             explanation = explain_bias(bias, url)
 
-            response = jsonify({
-                "url": url,
-                "bias": bias,
-                "explanation": explanation
-            })
+            resp_dict = {
+                            "url": url,
+                            "bias": bias,
+                            "explanation": explanation
+                        }
 
-            explanation_output_responses[url] = response
-
+            response = jsonify(resp_dict)
+#             explanation_output_responses[url] = response
+            cacheResponse(url_hash, resp_dict)
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
 
